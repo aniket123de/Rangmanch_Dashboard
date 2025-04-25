@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signOut, getAuth } from 'firebase/auth';
+import { 
+  User, 
+  onAuthStateChanged, 
+  signOut, 
+  getAuth,
+  signInWithCustomToken 
+} from 'firebase/auth';
 import { auth } from '../firebase/config';
 
 interface AuthContextType {
@@ -39,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         try {
           // Verify the token
-          await auth.signInWithCustomToken(token);
+          await signInWithCustomToken(auth, token);
           // Remove token from URL
           window.history.replaceState({}, document.title, window.location.pathname);
         } catch (error) {
