@@ -24,23 +24,32 @@ const MAIN_WEBSITE_LOGIN = 'https://rangmanch.vercel.app'; // Replace with your 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    // Enable Firebase persistence
+    auth.setPersistence('local');
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        // If no user is authenticated, redirect to main website login
-        window.location.href = MAIN_WEBSITE_LOGIN;
-        return;
+      if (!authChecked) {
+        setAuthChecked(true);
+        if (!user) {
+          // Only redirect if this is the first auth check
+          window.location.href = MAIN_WEBSITE_LOGIN;
+          return;
+        }
       }
+      
       setCurrentUser(user);
       setLoading(false);
     });
 
     return unsubscribe;
-  }, []);
+  }, [authChecked]);
 
   const logout = async () => {
     await signOut(auth);
+    window.location.href = MAIN_WEBSITE_LOGIN;
   };
 
   const value = {
