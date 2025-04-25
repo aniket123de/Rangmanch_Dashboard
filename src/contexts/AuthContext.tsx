@@ -4,7 +4,8 @@ import {
   onAuthStateChanged, 
   signOut, 
   getAuth,
-  signInWithCustomToken 
+  signInWithCredential,
+  GoogleAuthProvider
 } from 'firebase/auth';
 import { auth } from '../firebase/config';
 
@@ -30,37 +31,32 @@ const MAIN_WEBSITE_LOGIN = 'https://rangmanch.vercel.app'; // Replace with your 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialAuthCheckDone, setInitialAuthCheckDone] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        // Check if we have a token in URL params
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
+      console.log("Auth state changed:", user ? "User exists" : "No user");
+      
+      if (!initialAuthCheckDone) {
+        setInitialAuthCheckDone(true);
         
-        if (!token) {
+        if (!user) {
+          // Only redirect on first load if no user
+          console.log("No user found, redirecting to main site");
           window.location.href = MAIN_WEBSITE_LOGIN;
           return;
         }
-
-        try {
-          // Verify the token
-          await signInWithCustomToken(auth, token);
-          // Remove token from URL
-          window.history.replaceState({}, document.title, window.location.pathname);
-        } catch (error) {
-          console.error('Token verification failed:', error);
-          window.location.href = MAIN_WEBSITE_LOGIN;
-          return;
-        }
-      } else {
-        setCurrentUser(user);
-        setLoading(false);
       }
+
+      setCurrentUser(user);
+      setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      console.log("Cleaning up auth listener");
+      unsubscribe();
+    };
+  }, [initialAuthCheckDone]);
 
   const logout = async () => {
     try {
