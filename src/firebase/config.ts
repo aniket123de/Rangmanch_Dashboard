@@ -18,8 +18,15 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
-// Enable persistence
-setPersistence(auth, browserLocalPersistence);
+// Enable persistence immediately
+(async () => {
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    console.log("Firebase persistence enabled successfully");
+  } catch (error) {
+    console.error("Error enabling persistence:", error);
+  }
+})();
 
 // Configure Google Auth Provider
 const googleProvider = new GoogleAuthProvider();

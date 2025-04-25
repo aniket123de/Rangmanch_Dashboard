@@ -31,32 +31,38 @@ const MAIN_WEBSITE_LOGIN = 'https://rangmanch.vercel.app'; // Replace with your 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [initialAuthCheckDone, setInitialAuthCheckDone] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log("Auth state changed:", user ? "User exists" : "No user");
-      
-      if (!initialAuthCheckDone) {
-        setInitialAuthCheckDone(true);
+    console.log("Setting up auth listener...");
+    
+    // Add a small delay before checking auth state
+    const timeoutId = setTimeout(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        console.log("Auth state changed:", user ? "User exists" : "No user");
+        console.log("User details:", user);
         
         if (!user) {
-          // Only redirect on first load if no user
-          console.log("No user found, redirecting to main site");
-          window.location.href = MAIN_WEBSITE_LOGIN;
-          return;
+          console.log("No user found, checking if we should redirect...");
+          // Only redirect if we're not already on the login page
+          if (!window.location.href.includes(MAIN_WEBSITE_LOGIN)) {
+            console.log("Redirecting to main site login...");
+            window.location.href = MAIN_WEBSITE_LOGIN;
+            return;
+          }
         }
-      }
 
-      setCurrentUser(user);
-      setLoading(false);
-    });
+        setCurrentUser(user);
+        setLoading(false);
+      });
 
-    return () => {
-      console.log("Cleaning up auth listener");
-      unsubscribe();
-    };
-  }, [initialAuthCheckDone]);
+      return () => {
+        clearTimeout(timeoutId);
+        unsubscribe();
+      };
+    }, 1000); // 1 second delay
+
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const logout = async () => {
     try {
