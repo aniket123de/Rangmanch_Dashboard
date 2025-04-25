@@ -1,16 +1,28 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAnalytics } from 'firebase/analytics';
 
-// Use the same Firebase configuration from your main project
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  projectId: "rangmanch-4189e",
+  apiKey: "AIzaSyBKT2EyuMtocu1DCtYmDrr7NqYVNwAaSPs",
   authDomain: "rangmanch-4189e.firebaseapp.com",
-  // Add other config values from your main project
-  // apiKey, storageBucket, messagingSenderId, appId
+  projectId: "rangmanch-4189e",
+  storageBucket: "rangmanch-4189e.firebasestorage.app",
+  messagingSenderId: "385690692095",
+  appId: "1:385690692095:web:5c3a871035d694f4415fca",
+  measurementId: "G-73V0QBMC4F"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
+// Configure Google Auth Provider
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
+export { auth, app, analytics, googleProvider };
 export default app; 
