@@ -25,6 +25,9 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
+// Add this constant at the top of the file, after imports
+const MAIN_WEBSITE_LOGIN = 'https://rangmanch.vercel.app'; // Replace with your main website URL
+
 // Styled anchor component
 const StyledAnchor = styled('a')(({ theme }) => ({
   display: 'flex',
@@ -64,7 +67,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const handleLogout = async () => {
     try {
       await logout();
-      history.push('/login');
+      window.location.href = MAIN_WEBSITE_LOGIN;
     } catch (error) {
       console.error('Failed to log out:', error);
     }

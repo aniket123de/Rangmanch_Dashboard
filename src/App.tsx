@@ -9,9 +9,6 @@ import ContentLibrary from './pages/ContentLibrary';
 import Analytics from './pages/Analytics';
 import AudienceInsights from './pages/AudienceInsights';
 import Profile from './pages/Profile';
-import SignIn from './pages/SignIn';
-import Home from './pages/Home';
-import SignUp from './pages/SignUp';
 import Settings from './pages/Settings';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -38,7 +35,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, ...rest }) =>
         ) : (
           <Redirect
             to={{
-              pathname: "/login",
+              pathname: "/",
               state: { from: location }
             }}
           />
@@ -56,18 +53,6 @@ const AppContent: React.FC = () => {
       <CssBaseline />
       <Router>
         <Switch>
-          <Route path="/login">
-            {currentUser ? <Redirect to="/" /> : <SignIn />}
-          </Route>
-          
-          <Route path="/signup">
-            {currentUser ? <Redirect to="/" /> : <SignUp />}
-          </Route>
-          
-          <Route path="/home">
-            <Redirect to="/" />
-          </Route>
-          
           <ProtectedRoute path="/content-library">
             <DashboardLayout>
               <ContentLibrary />
