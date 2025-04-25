@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import { HashRouter as Router, Switch, Route, Redirect, RouteProps } from 'react-router-dom';
+import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import theme from './theme';
 import Dashboard from './pages/Dashboard';
 import DashboardLayout from './components/DashboardLayout';
@@ -16,7 +16,9 @@ import Settings from './pages/Settings';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Protected Route component
-interface ProtectedRouteProps extends Omit<RouteProps, 'render'> {
+interface ProtectedRouteProps {
+  path: string;
+  exact?: boolean;
   children: React.ReactNode;
 }
 
