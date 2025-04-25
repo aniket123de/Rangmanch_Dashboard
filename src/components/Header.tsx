@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import {
   AppBar,
   Avatar,
@@ -22,6 +23,7 @@ import {
   Person as PersonIcon,
   ExitToApp as LogoutIcon,
 } from '@mui/icons-material';
+import { useAuth } from '../contexts/AuthContext';
 
 // Styled anchor component
 const StyledAnchor = styled('a')(({ theme }) => ({
@@ -40,6 +42,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
+  const history = useHistory();
+  const { logout, currentUser } = useAuth();
 
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -55,6 +59,15 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   const handleNotificationClose = () => {
     setNotificationAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      history.push('/login');
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
   };
 
   const notifications = [
@@ -156,18 +169,64 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </IconButton>
         </Tooltip>
 
-        <IconButton onClick={handleProfileClick}>
-          <Avatar
-            sx={{
-              width: { xs: 32, sm: 40 },
-              height: { xs: 32, sm: 40 },
-              bgcolor: theme.palette.primary.main,
-              cursor: 'pointer',
-            }}
-          >
-            A
-          </Avatar>
-        </IconButton>
+        {currentUser && (
+          <div>
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleProfileClick}
+              color="inherit"
+            >
+              <PersonIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: 'visible',
+                  filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                  mt: 1.5,
+                  '&:before': {
+                    content: '""',
+                    display: 'block',
+                    position: 'absolute',
+                    top: 0,
+                    right: 14,
+                    width: 10,
+                    height: 10,
+                    bgcolor: theme.palette.background.paper,
+                    transform: 'translateY(-50%) rotate(45deg)',
+                    zIndex: 0,
+                  },
+                },
+              }}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem>
+                <StyledAnchor href="/#/profile" onClick={handleClose}>
+                  <PersonIcon fontSize="small" sx={{ mr: 1 }} />
+                  Profile
+                </StyledAnchor>
+              </MenuItem>
+              <MenuItem>
+                <StyledAnchor href="/#/settings" onClick={handleClose}>
+                  <SettingsIcon fontSize="small" sx={{ mr: 1 }} />
+                  Settings
+                </StyledAnchor>
+              </MenuItem>
+              <MenuItem onClick={handleLogout} sx={{ color: theme.palette.error.main }}>
+                <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
+                Sign out
+              </MenuItem>
+            </Menu>
+          </div>
+        )}
 
         <Menu
           anchorEl={notificationAnchorEl}
@@ -216,53 +275,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
               View all notifications
             </Typography>
           </Box>
-        </Menu>
-
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          PaperProps={{
-            elevation: 0,
-            sx: {
-              overflow: 'visible',
-              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-              mt: 1.5,
-              '&:before': {
-                content: '""',
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                right: 14,
-                width: 10,
-                height: 10,
-                bgcolor: theme.palette.background.paper,
-                transform: 'translateY(-50%) rotate(45deg)',
-                zIndex: 0,
-              },
-            },
-          }}
-          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        >
-          <MenuItem>
-            <StyledAnchor href="/#/profile" onClick={handleClose}>
-              <PersonIcon fontSize="small" sx={{ mr: 1 }} />
-              Profile
-            </StyledAnchor>
-          </MenuItem>
-          <MenuItem>
-            <StyledAnchor href="/#/settings" onClick={handleClose}>
-              <SettingsIcon fontSize="small" sx={{ mr: 1 }} />
-              Settings
-            </StyledAnchor>
-          </MenuItem>
-          <MenuItem sx={{ color: theme.palette.error.main }}>
-            <StyledAnchor href="/#/login" onClick={handleClose} sx={{ color: 'inherit' }}>
-              <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
-              Sign out
-            </StyledAnchor>
-          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

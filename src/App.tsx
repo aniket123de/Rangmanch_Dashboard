@@ -13,12 +13,37 @@ import SignIn from './pages/SignIn';
 import Home from './pages/Home';
 import SignUp from './pages/SignUp';
 import Settings from './pages/Settings';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-const App: React.FC = () => {
-  // For demo purposes, we'll check if user is logged in
-  const isLoggedIn = true; // In a real app, this would come from authentication state
+// Protected Route component
+const ProtectedRoute: React.FC<{ path: string; children: React.ReactNode }> = ({ children, ...rest }) => {
+  const { currentUser, loading } = useAuth();
 
-  console.log('App rendering with routes');
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={({ location }) =>
+        currentUser ? (
+          children
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/login",
+              state: { from: location }
+            }}
+          />
+        )
+      }
+    />
+  );
+};
+
+const AppContent: React.FC = () => {
+  const { currentUser } = useAuth();
 
   return (
     <ThemeProvider theme={theme}>
@@ -26,52 +51,52 @@ const App: React.FC = () => {
       <Router>
         <Switch>
           <Route path="/login">
-            {isLoggedIn ? <Redirect to="/" /> : <SignIn />}
+            {currentUser ? <Redirect to="/" /> : <SignIn />}
           </Route>
           
           <Route path="/signup">
-            {isLoggedIn ? <Redirect to="/" /> : <SignUp />}
+            {currentUser ? <Redirect to="/" /> : <SignUp />}
           </Route>
           
           <Route path="/home">
             <Redirect to="/" />
           </Route>
           
-          <Route path="/content-library">
+          <ProtectedRoute path="/content-library">
             <DashboardLayout>
               <ContentLibrary />
             </DashboardLayout>
-          </Route>
+          </ProtectedRoute>
           
-          <Route path="/analytics">
+          <ProtectedRoute path="/analytics">
             <DashboardLayout>
               <Analytics />
             </DashboardLayout>
-          </Route>
+          </ProtectedRoute>
           
-          <Route path="/audience-insights">
+          <ProtectedRoute path="/audience-insights">
             <DashboardLayout>
               <AudienceInsights />
             </DashboardLayout>
-          </Route>
+          </ProtectedRoute>
           
-          <Route path="/profile">
+          <ProtectedRoute path="/profile">
             <DashboardLayout>
               <Profile />
             </DashboardLayout>
-          </Route>
+          </ProtectedRoute>
           
-          <Route path="/settings">
+          <ProtectedRoute path="/settings">
             <DashboardLayout>
               <Settings />
             </DashboardLayout>
-          </Route>
+          </ProtectedRoute>
           
-          <Route path="/" exact>
+          <ProtectedRoute path="/" exact>
             <DashboardLayout>
               <Dashboard />
             </DashboardLayout>
-          </Route>
+          </ProtectedRoute>
           
           {/* Redirect any unknown routes to Dashboard */}
           <Route path="*">
@@ -80,6 +105,14 @@ const App: React.FC = () => {
         </Switch>
       </Router>
     </ThemeProvider>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

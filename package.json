@@ -11,12 +11,13 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
+    "@types/firebase": "^2.4.32",
     "@types/recharts": "^1.8.29",
-    "@types/styled-components": "^5.1.34",
     "antd": "^5.0.0",
     "apexcharts": "^3.35.3",
     "chart.js": "^4.4.1",
     "cross-env": "^7.0.3",
+    "firebase": "^11.6.1",
     "install": "^0.13.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.3.7",
@@ -55,9 +56,10 @@
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@types/node": "^20.11.17",
-    "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.19",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.6",
     "@types/react-router-dom": "^5.3.3",
+    "@types/styled-components": "^5.1.34",
     "typescript": "^4.9.5"
   }
 }
