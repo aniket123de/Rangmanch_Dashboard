@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signOut } from 'firebase/auth';
+import { User, onAuthStateChanged, signOut, getAuth } from 'firebase/auth';
 import { auth } from '../firebase/config';
 
 interface AuthContextType {
@@ -24,32 +24,46 @@ const MAIN_WEBSITE_LOGIN = 'https://rangmanch.vercel.app'; // Replace with your 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Enable Firebase persistence
-    auth.setPersistence('local');
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!authChecked) {
-        setAuthChecked(true);
-        if (!user) {
-          // Only redirect if this is the first auth check
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // Check if we have a token in URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        if (!token) {
           window.location.href = MAIN_WEBSITE_LOGIN;
           return;
         }
+
+        try {
+          // Verify the token
+          await auth.signInWithCustomToken(token);
+          // Remove token from URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (error) {
+          console.error('Token verification failed:', error);
+          window.location.href = MAIN_WEBSITE_LOGIN;
+          return;
+        }
+      } else {
+        setCurrentUser(user);
+        setLoading(false);
       }
-      
-      setCurrentUser(user);
-      setLoading(false);
     });
 
-    return unsubscribe;
-  }, [authChecked]);
+    return () => unsubscribe();
+  }, []);
 
   const logout = async () => {
-    await signOut(auth);
-    window.location.href = MAIN_WEBSITE_LOGIN;
+    try {
+      await signOut(auth);
+      window.location.href = MAIN_WEBSITE_LOGIN;
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = MAIN_WEBSITE_LOGIN;
+    }
   };
 
   const value = {
