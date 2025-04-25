@@ -86,8 +86,6 @@ function Sidenav({ color }) {
     </svg>,
   ];
 
-
-
   const profile = [
     <svg
       width="20"
@@ -208,15 +206,9 @@ function Sidenav({ color }) {
           </NavLink>
         </Menu.Item>
         <Menu.Item key="7">
-          <NavLink to="/sign-in">
-            <span className="icon">{signin}</span>
-            <span className="label">Sign In</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="8">
-          <NavLink to="/sign-up">
-            <span className="icon">{signup}</span>
-            <span className="label">Sign Up</span>
+          <NavLink to="/rtl">
+            <span className="icon">{billing}</span>
+            <span className="label">RTL</span>
           </NavLink>
         </Menu.Item>
       </Menu>
